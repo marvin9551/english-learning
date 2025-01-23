@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +20,7 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -31,12 +34,27 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      // TODO: 实现登录逻辑
-      console.log(data);
-      toast({
-        title: '登录成功',
-        description: '欢迎回来！',
+      const result = await signIn('credentials', {
+        email: data.email,
+        password: data.password,
+        redirect: false,
       });
+
+      if (result?.error) {
+        toast({
+          title: '登录失败',
+          description: '邮箱或密码错误',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: '登录成功',
+          description: '欢迎回来！',
+        });
+        // 确保会话状态完全更新
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        router.replace('/learn');
+      }
     } catch (error) {
       toast({
         title: '登录失败',

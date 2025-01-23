@@ -22,14 +22,21 @@ export default function LearnPage() {
   const [currentWord, setCurrentWord] = useState<Word | null>(null);
 
   useEffect(() => {
+    if (status === 'loading') return;
+
     if (status === 'unauthenticated') {
       router.push('/login');
-    } else if (status === 'authenticated') {
+      return;
+    }
+
+    if (status === 'authenticated' && !currentWord) {
       fetchNextWord();
     }
-  }, [status]);
+  }, [status, router, currentWord]);
 
   async function fetchNextWord() {
+    if (status !== 'authenticated') return;
+    
     try {
       const response = await fetch('/api/words/random');
       if (!response.ok) throw new Error('获取单词失败');
@@ -45,7 +52,7 @@ export default function LearnPage() {
   }
 
   async function markWord(status: 'known' | 'unknown') {
-    if (!currentWord) return;
+    if (!currentWord || !session) return;
     setLoading(true);
 
     try {
@@ -68,10 +75,27 @@ export default function LearnPage() {
     }
   }
 
-  if (status === 'loading' || !currentWord) {
+  if (status === 'loading') {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <p>加载中...</p>
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    return null;
+  }
+
+  if (!currentWord) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Card className="w-[400px]">
+          <CardHeader>
+            <CardTitle>暂无单词</CardTitle>
+            <CardDescription>当前没有可学习的单词</CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     );
   }
