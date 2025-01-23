@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
-import { ThumbsUpAnimation } from '@/components/ui/thumbs-up-animation';
+import { LearningStats } from '@/lib/learning-stats';
+import { ThumbsUpAnimation } from '@/components/thumbs-up-animation';
 
 interface Word {
   id: string;
@@ -23,18 +24,8 @@ export default function LearnPage() {
 
   // 检查并重置每日计数
   useEffect(() => {
-    const lastResetDate = localStorage.getItem('lastResetDate');
-    const today = new Date().toDateString();
-    
-    if (lastResetDate !== today) {
-      setTodayLearnedCount(0);
-      localStorage.setItem('lastResetDate', today);
-    } else {
-      const savedCount = localStorage.getItem('todayLearnedCount');
-      if (savedCount) {
-        setTodayLearnedCount(parseInt(savedCount));
-      }
-    }
+    const count = LearningStats.checkAndResetDailyCount();
+    setTodayLearnedCount(count);
   }, []);
 
   const fetchNextWord = async () => {
@@ -61,9 +52,8 @@ export default function LearnPage() {
 
   const handleRemembered = () => {
     setShowThumbsUp(true);
-    const newCount = todayLearnedCount + 1;
-    setTodayLearnedCount(newCount);
-    localStorage.setItem('todayLearnedCount', newCount.toString());
+    LearningStats.incrementTodayLearnedCount();
+    setTodayLearnedCount(LearningStats.getTodayLearnedCount());
     setTimeout(() => {
       setShowThumbsUp(false);
       fetchNextWord();
@@ -96,8 +86,13 @@ export default function LearnPage() {
 
   return (
     <div className="flex h-screen w-full items-center justify-center p-4 flex-col">
-      <div className="mb-4 text-lg font-semibold">
-        今日已记住: <span className="text-green-600">{todayLearnedCount}</span> 个单词
+      <div className="flex flex-col items-center gap-2 mb-4">
+        <div className="text-lg font-semibold">
+          今日已记住: <span className="text-green-600">{todayLearnedCount}</span> 个单词
+        </div>
+        <Button variant="outline" onClick={() => window.location.href = '/learn/stats'}>
+          查看学习记录
+        </Button>
       </div>
       <ThumbsUpAnimation isVisible={showThumbsUp} />
       <Card className="w-[400px]">
