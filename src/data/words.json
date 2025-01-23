@@ -1,0 +1,34 @@
+{
+  "words": [
+    {
+      "id": "1",
+      "word": "ephemeral",
+      "meaning": "短暂的，瞬息的",
+      "example": "The beauty of cherry blossoms is ephemeral, lasting only a few days."
+    },
+    {
+      "id": "2",
+      "word": "ubiquitous",
+      "meaning": "无处不在的，普遍存在的",
+      "example": "Smartphones have become ubiquitous in modern society."
+    },
+    {
+      "id": "3",
+      "word": "serendipity",
+      "meaning": "意外发现美好事物的能力",
+      "example": "Finding my dream job was pure serendipity."
+    },
+    {
+      "id": "4",
+      "word": "pragmatic",
+      "meaning": "务实的，实用的",
+      "example": "We need a pragmatic approach to solve this problem."
+    },
+    {
+      "id": "5",
+      "word": "eloquent",
+      "meaning": "雄辩的，有说服力的",
+      "example": "Her eloquent speech moved the entire audience."
+    }
+  ]
+}
