@@ -21,12 +21,19 @@ export default function LearnPage() {
   const [showThumbsUp, setShowThumbsUp] = useState(false);
   const [reviewList, setReviewList] = useState<Word[]>([]);
   const [todayLearnedCount, setTodayLearnedCount] = useState(0);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 检查并重置每日计数
   useEffect(() => {
-    const count = LearningStats.checkAndResetDailyCount();
-    setTodayLearnedCount(count);
-  }, []);
+    if (mounted) {
+      const count = LearningStats.checkAndResetDailyCount();
+      setTodayLearnedCount(count);
+    }
+  }, [mounted]);
 
   const fetchNextWord = async () => {
     setLoading(true);
@@ -47,8 +54,10 @@ export default function LearnPage() {
   };
 
   useEffect(() => {
-    fetchNextWord();
-  }, []);
+    if (mounted) {
+      fetchNextWord();
+    }
+  }, [mounted]);
 
   const handleRemembered = () => {
     setShowThumbsUp(true);
@@ -71,6 +80,10 @@ export default function LearnPage() {
     fetchNextWord();
   };
 
+  if (!mounted) {
+    return null;
+  }
+
   if (!currentWord) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -85,14 +98,14 @@ export default function LearnPage() {
   }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center p-4 flex-col">
-      <div className="flex flex-col items-center gap-2 mb-4">
-        <div className="text-lg font-semibold">
-          今日已记住: <span className="text-green-600">{todayLearnedCount}</span> 个单词
-        </div>
+    <div className="relative flex h-screen w-full items-center justify-center p-4 flex-col">
+      <div className="absolute top-4 right-4">
         <Button variant="outline" onClick={() => window.location.href = '/learn/stats'}>
           查看学习记录
         </Button>
+      </div>
+      <div className="text-lg font-semibold mb-4">
+        今日已记住: <span className="text-green-600">{todayLearnedCount}</span> 个单词
       </div>
       <ThumbsUpAnimation isVisible={showThumbsUp} />
       <Card className="w-[400px]">
@@ -105,9 +118,11 @@ export default function LearnPage() {
             <p className="text-gray-600 italic text-center">{currentWord.example}</p>
           </CardContent>
         )}
-        <CardFooter className="flex gap-4 justify-center">
+        <CardFooter className="flex gap-6 justify-center">
           <Button
             variant="secondary"
+            size="lg"
+            className="w-32 text-lg font-semibold hover:scale-105 transition-transform shadow-md border border-gray-200 dark:border-gray-700"
             onClick={handleRemembered}
             disabled={loading}
           >
@@ -115,6 +130,8 @@ export default function LearnPage() {
           </Button>
           <Button
             variant="destructive"
+            size="lg"
+            className="w-32 text-lg font-semibold hover:scale-105 transition-transform shadow-md border border-gray-200 dark:border-gray-700"
             onClick={handleForgotten}
             disabled={loading}
           >

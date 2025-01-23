@@ -8,12 +8,18 @@ export class LearningStats {
   private static readonly LAST_RESET_DATE_KEY = 'lastResetDate';
   private static readonly TODAY_LEARNED_COUNT_KEY = 'todayLearnedCount';
 
+  private static isClient(): boolean {
+    return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+  }
+
   static getTodayLearnedCount(): number {
+    if (!this.isClient()) return 0;
     const savedCount = localStorage.getItem(this.TODAY_LEARNED_COUNT_KEY);
     return savedCount ? parseInt(savedCount) : 0;
   }
 
   static incrementTodayLearnedCount(): void {
+    if (!this.isClient()) return;
     const newCount = this.getTodayLearnedCount() + 1;
     localStorage.setItem(this.TODAY_LEARNED_COUNT_KEY, newCount.toString());
     
@@ -24,6 +30,7 @@ export class LearningStats {
   }
 
   static checkAndResetDailyCount(): number {
+    if (!this.isClient()) return 0;
     const lastResetDate = localStorage.getItem(this.LAST_RESET_DATE_KEY);
     const today = new Date().toDateString();
     
@@ -37,6 +44,9 @@ export class LearningStats {
   }
 
   static getWeeklyStats(): { records: DailyRecord[]; streak: number } {
+    if (!this.isClient()) {
+      return { records: [], streak: 0 };
+    }
     const records: DailyRecord[] = [];
     const today = new Date();
     let currentStreak = 0;
